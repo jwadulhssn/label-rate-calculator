@@ -77,127 +77,133 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
       const contentWidth = pw - ml - mr;
       let y = 20;
 
-      const bold = (text: string, size = 14, color?: string) => {
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(size);
-        if (color) pdf.setTextColor(color);
-        else pdf.setTextColor(30, 41, 59);
-      };
-      const normal = (text: string, size = 10, color?: string) => {
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(size);
-        if (color) pdf.setTextColor(color);
-        else pdf.setTextColor(100, 116, 139);
-      };
-      const text = (str: string, x: number, yPos: number, align: CanvasTextAlign = "left") => {
+      function write(str: string, x: number, yPos: number, align: "left" | "center" | "right" = "left") {
         pdf.text(str, x, yPos, { align });
-      };
+      }
+      function setColor(hex: string) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        pdf.setTextColor(r, g, b);
+      }
 
       // Header
-      bold("LabelPro", 26, "#4f46e5");
-      text("LabelPro", ml, y, "left");
-      y += 6;
-      normal("Premium Label Solutions", 10);
-      text("Premium Label Solutions", ml, y, "left");
-      y += 4;
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(26);
+      setColor("#4f46e5");
+      write("LabelPro", ml, y);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      setColor("#64748b");
+      write("Premium Label Solutions", ml, y + 6);
+      // Right side
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(18);
+      setColor("#4f46e5");
+      write("QUOTE", pw - mr, ml + 2, "right");
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      setColor("#64748b");
+      write(`#${quote.quoteNumber}`, pw - mr, ml + 9, "right");
+      write(quote.quoteDate, pw - mr, ml + 15, "right");
 
-      // Quote meta (right side)
-      bold("QUOTE", 18, "#4f46e5");
-      text(`QUOTE`, pw - mr, ml + 2, "right");
-      normal(`#${quote.quoteNumber}`, 10);
-      text(`#${quote.quoteNumber}`, pw - mr, ml + 8, "right");
-      normal(quote.quoteDate, 10);
-      text(quote.quoteDate, pw - mr, ml + 13, "right");
-
-      // Divider
-      y = Math.max(y + 4, 38);
-      pdf.setDrawColor(79, 70, 229);
+      y = Math.max(y + 14, 40);
+      pdf.setDrawColor("#4f46e5");
       pdf.setLineWidth(0.8);
       pdf.line(ml, y, pw - mr, y);
       y += 10;
 
       // Bill To
       if (quote.customerName || quote.customerEmail || quote.customerPhone || quote.customerAddress) {
+        const billH = 30;
         pdf.setFillColor(248, 250, 252);
-        pdf.roundedRect(ml, y, contentWidth, 28, 3, 3, "F");
+        pdf.roundedRect(ml, y, contentWidth, billH, 3, 3, "F");
         pdf.setDrawColor(226, 232, 240);
-      pdf.roundedRect(ml, y, contentWidth, 28, 3, 3, "S");
+        pdf.roundedRect(ml, y, contentWidth, billH, 3, 3, "S");
         y += 5;
-        bold("BILL TO", 8, "#94a3b8");
-        text("BILL TO", ml + 6, y, "left");
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(8);
+        setColor("#94a3b8");
+        write("BILL TO", ml + 6, y);
         y += 5;
-        if (quote.customerName) { bold(quote.customerName, 11, "#1e293b"); text(quote.customerName, ml + 6, y, "left"); y += 4; }
-        normal(`${quote.customerEmail}${quote.customerEmail && quote.customerPhone ? "  |  " : ""}${quote.customerPhone}`, 9, "#64748b");
-        text(`${quote.customerEmail}${quote.customerEmail && quote.customerPhone ? "  |  " : ""}${quote.customerPhone}`, ml + 6, y, "left");
-        y += 4;
-        normal(quote.customerAddress, 9, "#64748b");
-        text(quote.customerAddress, ml + 6, y, "left");
-        y += 4;
+        if (quote.customerName) {
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(11);
+          setColor("#1e293b");
+          write(quote.customerName, ml + 6, y);
+          y += 4;
+        }
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        setColor("#64748b");
+        const contactLine = [quote.customerEmail, quote.customerPhone].filter(Boolean).join("  |  ");
+        if (contactLine) { write(contactLine, ml + 6, y); y += 4; }
+        if (quote.customerAddress) { write(quote.customerAddress, ml + 6, y); y += 4; }
         y += 4;
       }
 
       // Specs
-      const specItems = [
-        { label: "Label Type", value: `${selectedType?.name} - ${params.color}` },
-        { label: "Item Code", value: variant?.itemCode ?? "-" },
-        { label: "Label Size", value: `${params.width} × ${params.length} mm` },
-        { label: "Quantity", value: `${params.qty.toLocaleString()} labels` },
+      const specs = [
+        { l: "Label Type", v: `${selectedType?.name} - ${params.color}` },
+        { l: "Item Code", v: variant?.itemCode ?? "-" },
+        { l: "Label Size", v: `${params.width} × ${params.length} mm` },
+        { l: "Quantity", v: `${params.qty.toLocaleString()} labels` },
       ];
       pdf.setFillColor(248, 250, 252);
-      for (let i = 0; i < specItems.length; i++) {
-        const sx = ml + (i % 2) * (contentWidth / 2);
-        const sy = y;
+      pdf.setDrawColor(226, 232, 240);
+      const specW = contentWidth / 2;
+      specs.forEach((s, i) => {
+        const sx = ml + (i % 2) * specW;
         if (i % 2 === 0) {
-          pdf.roundedRect(ml, sy, contentWidth, 22, 3, 3, "F");
-          pdf.setDrawColor(226, 232, 240);
-        pdf.roundedRect(ml, sy, contentWidth, 22, 3, 3, "S");
+          pdf.roundedRect(ml, y, contentWidth, 22, 3, 3, "F");
+          pdf.roundedRect(ml, y, contentWidth, 22, 3, 3, "S");
         }
-        normal(specItems[i].label.toUpperCase(), 7, "#94a3b8");
-        text(specItems[i].label.toUpperCase(), sx + 8, sy + 6, "left");
-        bold(specItems[i].value, 10, "#1e293b");
-        text(specItems[i].value, sx + 8, sy + 15, "left");
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(7);
+        setColor("#94a3b8");
+        write(s.l.toUpperCase(), sx + 8, y + 6);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(10);
+        setColor("#1e293b");
+        write(s.v, sx + 8, y + 15);
         if (i % 2 === 1) y += 26;
-      }
-      if (specItems.length % 2 === 1) y += 26;
+      });
+      if (specs.length % 2 === 1) y += 26;
       y += 4;
 
-      // Pricing table header
+      // Table header
       const colX = [ml, pw - mr - 75, pw - mr - 45, pw - mr];
-      const colW = [colX[1] - colX[0] - 2, 30, 30, 45];
       const rowH = 8;
       pdf.setFillColor(241, 245, 249);
       pdf.rect(ml, y, contentWidth, rowH, "F");
       pdf.setDrawColor(226, 232, 240);
       pdf.line(ml, y + rowH, pw - mr, y + rowH);
-      bold("DESCRIPTION", 7, "#64748b");
-      text("DESCRIPTION", ml + 4, y + 5.5, "left");
-      bold("QTY", 7, "#64748b");
-      text("QTY", colX[1] + 15, y + 5.5, "right");
-      bold("RATE", 7, "#64748b");
-      text("RATE", colX[2] + 15, y + 5.5, "right");
-      bold("AMOUNT", 7, "#64748b");
-      text("AMOUNT", colX[3] - 4, y + 5.5, "right");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(7);
+      setColor("#64748b");
+      write("DESCRIPTION", ml + 4, y + 5.5);
+      write("QTY", colX[1] + 15, y + 5.5, "right");
+      write("RATE", colX[2] + 15, y + 5.5, "right");
+      write("AMOUNT", colX[3] - 4, y + 5.5, "right");
       y += rowH;
 
-      const addRow = (desc: string, qtyStr: string, rateStr: string, amtStr: string) => {
-        if (y > ph - 30) {
-          pdf.addPage();
-          y = 20;
-        }
-        normal(desc, 9, "#1e293b");
-        text(desc, ml + 4, y + 4, "left");
-        normal(qtyStr, 9, "#64748b");
-        text(qtyStr, colX[1] + 15, y + 4, "right");
-        normal(rateStr, 9, "#64748b");
-        text(rateStr, colX[2] + 15, y + 4, "right");
+      function addRow(desc: string, qty: string, rate: string, amt: string) {
+        if (y > ph - 30) { pdf.addPage(); y = 20; }
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        setColor("#1e293b");
+        write(desc, ml + 4, y + 4);
+        setColor("#64748b");
+        write(qty, colX[1] + 15, y + 4, "right");
+        write(rate, colX[2] + 15, y + 4, "right");
         pdf.setFont("helvetica", "bold");
-        normal(amtStr, 9, "#1e293b");
-        text(amtStr, colX[3] - 4, y + 4, "right");
+        setColor("#1e293b");
+        write(amt, colX[3] - 4, y + 4, "right");
         y += 7;
         pdf.setDrawColor(241, 245, 249);
         pdf.line(ml, y, pw - mr, y);
         y += 2;
-      };
+      }
 
       addRow("Material Cost", params.qty.toLocaleString(), `${formatRate(variant?.labelRate ?? 0)}/mm²`, formatCurrency(result.materialCost));
       if (params.blockQty > 0) addRow("Block Charges", String(params.blockQty), formatCurrency(params.blockRate), formatCurrency(result.blockCharges));
@@ -208,42 +214,49 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
 
       // Totals
       const totalsX = pw - mr - 90;
-      pdf.setDrawColor(79, 70, 229);
+      pdf.setDrawColor("#4f46e5");
       pdf.setLineWidth(0.6);
       pdf.line(totalsX, y, pw - mr, y);
       y += 4;
 
-      normal("Subtotal", 10, "#64748b");
-      text("Subtotal", totalsX, y, "left");
-      bold(formatCurrency(result.totalCost), 10);
-      text(formatCurrency(result.totalCost), pw - mr, y, "right");
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      setColor("#64748b");
+      write("Subtotal", totalsX, y);
+      pdf.setFont("helvetica", "bold");
+      setColor("#1e293b");
+      write(formatCurrency(result.totalCost), pw - mr, y, "right");
       y += 6;
 
+      const oneTime = result.blockCharges + result.colorCharges + result.designCharges;
       if (params.blockQty > 0 || params.colorQty > 0 || params.designQty > 0) {
-        normal("One-time charges", 9, "#94a3b8");
-        text("One-time charges", totalsX, y, "left");
-        normal(formatCurrency(result.blockCharges + result.colorCharges + result.designCharges), 9);
-        text(formatCurrency(result.blockCharges + result.colorCharges + result.designCharges), pw - mr, y, "right");
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        setColor("#94a3b8");
+        write("One-time charges", totalsX, y);
+        write(formatCurrency(oneTime), pw - mr, y, "right");
         y += 6;
       }
 
-      normal("Unit Price", 9, "#64748b");
-      text("Unit Price", totalsX, y, "left");
-      normal(`${formatCurrency(result.unitPrice)} / label`, 9);
-      text(`${formatCurrency(result.unitPrice)} / label`, pw - mr, y, "right");
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      setColor("#64748b");
+      write("Unit Price", totalsX, y);
+      write(`${formatCurrency(result.unitPrice)} / label`, pw - mr, y, "right");
       y += 4;
 
-      pdf.setDrawColor(79, 70, 229);
+      pdf.setDrawColor("#4f46e5");
       pdf.setLineWidth(0.8);
       pdf.line(totalsX, y, pw - mr, y);
       y += 4;
 
-      bold("Total Amount", 13, "#4f46e5");
-      text("Total Amount", totalsX, y, "left");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(13);
+      setColor("#4f46e5");
+      write("Total Amount", totalsX, y);
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(16);
-      pdf.setTextColor(79, 70, 229);
-      text(formatCurrency(result.totalCost), pw - mr, y, "right");
+      write(formatCurrency(result.totalCost), pw - mr, y, "right");
       y += 10;
 
       // Roll Info
@@ -253,14 +266,18 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
       pdf.setDrawColor(199, 210, 254);
       pdf.roundedRect(ml, y, contentWidth, 18, 3, 3, "S");
       y += 4;
-      bold("ROLL PRICING", 7, "#6366f1");
-      text("ROLL PRICING", ml + 6, y, "left");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(7);
+      setColor("#6366f1");
+      write("ROLL PRICING", ml + 6, y);
       y += 4;
-      normal(`Price per 200m roll (${params.width}mm width): ${formatCurrency(result.rollPricePer200m)}`, 8, "#4338ca");
-      text(`Price per 200m roll (${params.width}mm width): ${formatCurrency(result.rollPricePer200m)}`, ml + 6, y, "left");
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(8);
+      setColor("#4338ca");
+      write(`Price per 200m roll (${params.width}mm width): ${formatCurrency(result.rollPricePer200m)}`, ml + 6, y);
       const labelsPerRoll = Math.floor(200000 / params.length);
       const rollsNeeded = Math.ceil(params.qty / labelsPerRoll);
-      normal(`  |  Approx. ${labelsPerRoll.toLocaleString()} labels/roll  |  ${rollsNeeded} roll(s) required`, 8, "#4338ca");
+      write(`  |  Approx. ${labelsPerRoll.toLocaleString()} labels/roll  |  ${rollsNeeded} roll(s) required`, ml + 100, y);
       y += 6;
 
       // Footer
@@ -268,15 +285,17 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
       pdf.setDrawColor(226, 232, 240);
       pdf.line(ml, y, pw - mr, y);
       y += 4;
-      normal("This is a computer-generated quote. Terms and conditions apply. Quote valid for 15 days.", 8, "#94a3b8");
-      text("This is a computer-generated quote. Terms and conditions apply. Quote valid for 15 days.", pw / 2, y, "center");
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(8);
+      setColor("#94a3b8");
+      write("This is a computer-generated quote. Terms and conditions apply. Quote valid for 15 days.", pw / 2, y, "center");
       y += 4;
-      normal("LabelPro  ·  Premium Label Solutions  ·  contact@labelpro.com", 8, "#94a3b8");
-      text("LabelPro  ·  Premium Label Solutions  ·  contact@labelpro.com", pw / 2, y, "center");
+      write("LabelPro  ·  Premium Label Solutions  ·  contact@labelpro.com", pw / 2, y, "center");
 
       pdf.save(`Quote-${quote.quoteNumber}.pdf`);
     } catch (err) {
       console.error("PDF generation failed", err);
+      alert("Failed to generate PDF. Please try using Print instead.");
     } finally {
       setDownloading(false);
     }
