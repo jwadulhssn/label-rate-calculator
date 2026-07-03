@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 
 interface QuoteData {
   customerName: string;
+  customerCompany: string;
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
@@ -114,8 +115,8 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
       y += 10;
 
       // Bill To
-      if (quote.customerName || quote.customerEmail || quote.customerPhone || quote.customerAddress) {
-        const billH = 30;
+      if (quote.customerName || quote.customerCompany || quote.customerEmail || quote.customerPhone || quote.customerAddress) {
+        const billH = quote.customerCompany ? 35 : 30;
         pdf.setFillColor(248, 250, 252);
         pdf.roundedRect(ml, y, contentWidth, billH, 3, 3, "F");
         pdf.setDrawColor(226, 232, 240);
@@ -131,6 +132,13 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
           pdf.setFontSize(11);
           setColor("#1e293b");
           write(quote.customerName, ml + 6, y);
+          y += 4;
+        }
+        if (quote.customerCompany) {
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(9);
+          setColor("#64748b");
+          write(quote.customerCompany, ml + 6, y);
           y += 4;
         }
         pdf.setFont("helvetica", "normal");
@@ -340,10 +348,11 @@ export default function QuoteModal({ params, result, quote, onClose }: QuoteModa
             </div>
           </div>
 
-          {(quote.customerName || quote.customerEmail || quote.customerPhone || quote.customerAddress) && (
+          {(quote.customerName || quote.customerCompany || quote.customerEmail || quote.customerPhone || quote.customerAddress) && (
             <div className="mb-6 p-5 bg-slate-50 rounded-xl border border-slate-200">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Bill To</h3>
               {quote.customerName && <p className="text-base font-semibold text-slate-800">{quote.customerName}</p>}
+              {quote.customerCompany && <p className="text-sm text-slate-500">{quote.customerCompany}</p>}
               {quote.customerEmail && <p className="text-sm text-slate-500">{quote.customerEmail}</p>}
               {quote.customerPhone && <p className="text-sm text-slate-500">{quote.customerPhone}</p>}
               {quote.customerAddress && <p className="text-sm text-slate-500">{quote.customerAddress}</p>}

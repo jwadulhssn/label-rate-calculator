@@ -27,15 +27,15 @@ export default function StatCard({
 
   return (
     <div
-      className={`bg-gradient-to-br ${colors[accent]} rounded-2xl border p-5 backdrop-blur-sm`}
+      className={`bg-gradient-to-br ${colors[accent]} rounded-xl sm:rounded-2xl border p-2.5 sm:p-5 backdrop-blur-sm`}
     >
-      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+      <p className="text-[9px] sm:text-xs font-medium text-slate-400 uppercase tracking-wider">
         {label}
       </p>
-      <p className={`text-2xl font-bold mt-1 ${accentColors[accent]}`}>
+      <p className={`text-sm sm:text-2xl font-bold mt-0 sm:mt-1 ${accentColors[accent]}`}>
         {value}
       </p>
-      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+      {sub && <p className="hidden sm:block text-xs text-slate-500 mt-1">{sub}</p>}
     </div>
   );
 }

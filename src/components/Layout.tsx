@@ -77,14 +77,17 @@ export default function Layout({ children }: { children: ReactNode }) {
       {/* Mobile drawer */}
       {menuOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMenuOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMenuOpen(false)}
+          />
           <aside className="absolute left-0 top-0 h-full w-72 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800/50 p-6 flex flex-col shadow-2xl">
             {sidebar}
           </aside>
         </div>
       )}
 
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0 p-4 sm:p-6 lg:p-8">
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0 p-4 lg:p-8">
         {children}
       </main>
     </div>

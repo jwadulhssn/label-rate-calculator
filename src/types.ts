@@ -44,20 +44,21 @@ export interface CalculationResult {
 export interface Customer {
   id: string;
   name: string;
+  company: string;
   email: string;
   phone: string;
   address: string;
   notes: string;
-  rates: CustomerRate[];
+  quotes: CustomerQuote[];
   createdAt: string;
 }
 
-export interface CustomerRate {
+export interface CustomerQuote {
   id: string;
   labelTypeId: string;
   color: LabelColor;
-  labelPriceRate: number;
-  rollPriceRate: number;
+  params: LabelParams;
+  result: CalculationResult;
   notes: string;
   createdAt: string;
 }

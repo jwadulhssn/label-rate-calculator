@@ -1,13 +1,14 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import type { Customer, CustomerRate } from "./types";
+import type { Customer, CustomerQuote } from "./types";
 
 interface AppContextType {
   customers: Customer[];
-  addCustomer: (c: Omit<Customer, "id" | "createdAt" | "rates">) => void;
+  addCustomer: (c: Omit<Customer, "id" | "createdAt" | "quotes">) => void;
   updateCustomer: (id: string, c: Partial<Customer>) => void;
   deleteCustomer: (id: string) => void;
-  addRate: (customerId: string, rate: Omit<CustomerRate, "id" | "createdAt">) => void;
-  deleteRate: (customerId: string, rateId: string) => void;
+  addQuote: (customerId: string, quote: Omit<CustomerQuote, "id" | "createdAt">) => void;
+  updateQuote: (customerId: string, quoteId: string, quote: Partial<CustomerQuote>) => void;
+  deleteQuote: (customerId: string, quoteId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -15,17 +16,23 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const saved = localStorage.getItem("label-calculator-customers");
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    const parsed: Customer[] = JSON.parse(saved);
+    return parsed.map((c) => ({
+      ...c,
+      company: c.company || "",
+      quotes: c.quotes || [],
+    }));
   });
 
   useEffect(() => {
     localStorage.setItem("label-calculator-customers", JSON.stringify(customers));
   }, [customers]);
 
-  const addCustomer = (data: Omit<Customer, "id" | "createdAt" | "rates">) => {
+  const addCustomer = (data: Omit<Customer, "id" | "createdAt" | "quotes">) => {
     setCustomers((prev) => [
       ...prev,
-      { ...data, rates: [], id: crypto.randomUUID(), createdAt: new Date().toISOString() },
+      { ...data, quotes: [], id: crypto.randomUUID(), createdAt: new Date().toISOString() },
     ]);
   };
 
@@ -39,15 +46,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCustomers((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const addRate = (customerId: string, rate: Omit<CustomerRate, "id" | "createdAt">) => {
+  const addQuote = (customerId: string, quote: Omit<CustomerQuote, "id" | "createdAt">) => {
     setCustomers((prev) =>
       prev.map((c) =>
         c.id === customerId
           ? {
               ...c,
-              rates: [
-                ...c.rates,
-                { ...rate, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
+              quotes: [
+                ...c.quotes,
+                { ...quote, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
               ],
             }
           : c
@@ -55,11 +62,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const deleteRate = (customerId: string, rateId: string) => {
+  const updateQuote = (customerId: string, quoteId: string, data: Partial<CustomerQuote>) => {
     setCustomers((prev) =>
       prev.map((c) =>
         c.id === customerId
-          ? { ...c, rates: c.rates.filter((r) => r.id !== rateId) }
+          ? { ...c, quotes: c.quotes.map((q) => (q.id === quoteId ? { ...q, ...data } : q)) }
+          : c
+      )
+    );
+  };
+
+  const deleteQuote = (customerId: string, quoteId: string) => {
+    setCustomers((prev) =>
+      prev.map((c) =>
+        c.id === customerId
+          ? { ...c, quotes: c.quotes.filter((q) => q.id !== quoteId) }
           : c
       )
     );
@@ -67,7 +84,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{ customers, addCustomer, updateCustomer, deleteCustomer, addRate, deleteRate }}
+      value={{ customers, addCustomer, updateCustomer, deleteCustomer, addQuote, updateQuote, deleteQuote }}
     >
       {children}
     </AppContext.Provider>
