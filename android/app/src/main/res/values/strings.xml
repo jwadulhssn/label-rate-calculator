@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Label Rate Calculator</string>
+    <string name="title_activity_main">Label Rate Calculator</string>
+    <string name="package_name">com.example.labelratecalculator</string>
+    <string name="custom_url_scheme">com.example.labelratecalculator</string>
+</resources>
