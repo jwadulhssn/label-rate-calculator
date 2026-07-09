@@ -184,10 +184,10 @@ export default function Customers() {
     <div className="space-y-6 sm:space-y-8 py-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Customers
           </h2>
-          <p className="text-slate-400 mt-1 text-xs sm:text-sm">
+          <p className="text-slate-500 mt-1 text-xs sm:text-sm">
             Manage customers and their saved quotes
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function Customers() {
             resetForm();
             setShowForm(true);
           }}
-          className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-xs sm:text-sm font-medium hover:from-indigo-400 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25 w-full sm:w-auto justify-center"
+          className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-xs sm:text-sm font-medium text-white hover:from-indigo-400 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25 w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" /> Add Customer
         </button>
@@ -204,33 +204,33 @@ export default function Customers() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 w-full max-w-lg mx-auto shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-5 sm:p-8 w-full max-w-lg mx-auto shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-bold text-white">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                 {editing ? "Edit Customer" : "New Customer"}
               </h3>
               <button
                 onClick={resetForm}
-                className="text-slate-500 hover:text-white transition-colors"
+                className="text-slate-500 hover:text-slate-700 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5 sm:space-y-2">
-                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                   <Building2 className="w-3 h-3 sm:w-4 sm:h-4" /> Customer Name
                 </label>
                 <input
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                   placeholder="e.g. ABC Garments"
                 />
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                   <Building2 className="w-3 h-3 sm:w-4 sm:h-4" /> Company
                 </label>
                 <input
@@ -238,13 +238,13 @@ export default function Customers() {
                   onChange={(e) =>
                     setForm({ ...form, company: e.target.value })
                   }
-                  className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                   placeholder="e.g. ABC Textiles Pvt Ltd"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:space-y-2">
-                  <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                     <Mail className="w-3 h-3 sm:w-4 sm:h-4" /> Email
                   </label>
                   <input
@@ -253,12 +253,12 @@ export default function Customers() {
                     onChange={(e) =>
                       setForm({ ...form, email: e.target.value })
                     }
-                    className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                     placeholder="email@example.com"
                   />
                 </div>
                 <div className="space-y-1.5 sm:space-y-2">
-                  <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                     <Phone className="w-3 h-3 sm:w-4 sm:h-4" /> Phone
                   </label>
                   <input
@@ -267,13 +267,13 @@ export default function Customers() {
                     onChange={(e) =>
                       setForm({ ...form, phone: e.target.value })
                     }
-                    className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                     placeholder="+1 234 567 890"
                   />
                 </div>
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4" /> Address
                 </label>
                 <input
@@ -281,19 +281,19 @@ export default function Customers() {
                   onChange={(e) =>
                     setForm({ ...form, address: e.target.value })
                   }
-                  className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                   placeholder="123 Main St, City"
                 />
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                   <FileText className="w-3 h-3 sm:w-4 sm:h-4" /> Notes
                 </label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={2}
-                  className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 resize-none"
                   placeholder="Optional notes..."
                 />
               </div>
@@ -307,7 +307,7 @@ export default function Customers() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="py-3 px-6 bg-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all"
+                  className="py-3 px-6 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
                 >
                   Cancel
                 </button>
@@ -318,11 +318,11 @@ export default function Customers() {
       )}
 
       {customers.length === 0 ? (
-        <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-800/50 p-8 sm:p-16 text-center">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white shadow-sm rounded-2xl sm:rounded-3xl border border-slate-200 p-8 sm:p-16 text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Users className="w-7 h-7 sm:w-8 sm:h-8 text-slate-600" />
           </div>
-          <h3 className="text-base sm:text-lg font-medium text-slate-300 mb-1">
+          <h3 className="text-base sm:text-lg font-medium text-slate-600 mb-1">
             No customers yet
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 mb-6">
@@ -333,7 +333,7 @@ export default function Customers() {
               resetForm();
               setShowForm(true);
             }}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-xs sm:text-sm font-medium text-indigo-300 hover:bg-indigo-500/30 transition-all inline-flex items-center gap-2"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs sm:text-sm font-medium text-indigo-600 hover:bg-indigo-100 transition-all inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Customer
           </button>
@@ -457,20 +457,20 @@ function CustomerCard({
       : null;
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-800/50 p-4 sm:p-6">
+    <div className="bg-white shadow-sm rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 flex items-center justify-center shrink-0">
-            <span className="text-base sm:text-lg font-bold text-indigo-300">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 flex items-center justify-center shrink-0">
+            <span className="text-base sm:text-lg font-bold text-indigo-600">
               {customer.name.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm sm:text-lg font-semibold text-white truncate">
+            <h3 className="text-sm sm:text-lg font-semibold text-slate-900 truncate">
               {customer.name}
             </h3>
             {customer.company && (
-              <p className="text-[10px] sm:text-xs text-slate-400 truncate">
+              <p className="text-[10px] sm:text-xs text-slate-500 truncate">
                 <Building2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 inline mr-1" />
                 {customer.company}
               </p>
@@ -494,13 +494,13 @@ function CustomerCard({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={() => onEdit(customer)}
-            className="text-[10px] sm:text-xs text-slate-400 hover:text-indigo-300 transition-colors px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800"
+            className="text-[10px] sm:text-xs text-slate-500 hover:text-indigo-600 transition-colors px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(customer.id)}
-            className="text-slate-400 hover:text-rose-300 transition-colors p-1.5 sm:p-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800"
+            className="text-slate-500 hover:text-rose-500 transition-colors p-1.5 sm:p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200"
           >
             <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
@@ -516,13 +516,13 @@ function CustomerCard({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-wider">
+          <h4 className="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider">
             Quotes
           </h4>
           {!showQuoteForm && (
             <button
               onClick={onAddQuote}
-              className="text-[10px] sm:text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+              className="text-[10px] sm:text-xs text-indigo-600 hover:text-indigo-600 transition-colors flex items-center gap-1"
             >
               <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Add Quote
             </button>
@@ -532,7 +532,7 @@ function CustomerCard({
         {showQuoteForm && (
           <form
             onSubmit={onSubmitQuote}
-            className="bg-slate-800/40 rounded-xl sm:rounded-2xl border border-slate-700/50 p-3 sm:p-4 space-y-2.5 sm:space-y-3 mb-3"
+            className="bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-4 space-y-2.5 sm:space-y-3 mb-3"
           >
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <select
@@ -549,7 +549,7 @@ function CustomerCard({
                     designRate: v.defaultDesignRate,
                   });
                 }}
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 col-span-2"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 col-span-2"
               >
                 {labelTypes.map((lt) => (
                   <option key={lt.id} value={lt.id}>
@@ -572,7 +572,7 @@ function CustomerCard({
                     designRate: v?.defaultDesignRate ?? quoteForm.designRate,
                   });
                 }}
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 col-span-2"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 col-span-2"
               >
                 {variants.map((v) => (
                   <option key={v.color} value={v.color}>
@@ -587,10 +587,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    width: Number(e.target.value),
+                    width: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
               <input
                 type="number"
@@ -599,10 +599,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    length: Number(e.target.value),
+                    length: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
             </div>
             <div className="grid grid-cols-4 gap-2 sm:gap-3">
@@ -613,10 +613,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    qty: Number(e.target.value),
+                    qty: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 col-span-2"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 col-span-2"
               />
               <input
                 type="number"
@@ -626,10 +626,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    blockQty: Number(e.target.value),
+                    blockQty: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
               <input
                 type="number"
@@ -638,10 +638,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    blockRate: Number(e.target.value),
+                    blockRate: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
             </div>
             <div className="grid grid-cols-4 gap-2 sm:gap-3">
@@ -652,10 +652,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    colorQty: Number(e.target.value),
+                    colorQty: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
               <input
                 type="number"
@@ -664,10 +664,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    colorRate: Number(e.target.value),
+                    colorRate: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
               <input
                 type="number"
@@ -676,10 +676,10 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    designQty: Number(e.target.value),
+                    designQty: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
               <input
                 type="number"
@@ -688,30 +688,30 @@ function CustomerCard({
                 onChange={(e) =>
                   onQuoteFormChange({
                     ...quoteForm,
-                    designRate: Number(e.target.value),
+                    designRate: e.target.value === "" ? 0 : Number(e.target.value),
                   })
                 }
-                className="bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
               />
             </div>
             {previewResult && (
-              <div className="bg-slate-900/60 rounded-xl p-2.5 sm:p-3 text-[10px] sm:text-xs space-y-1">
-                <div className="flex justify-between text-slate-300">
+              <div className="bg-indigo-50/50 rounded-xl p-2.5 sm:p-3 text-[10px] sm:text-xs space-y-1">
+                <div className="flex justify-between text-slate-600">
                   <span>Size</span>
                   <span>
                     {quoteForm.width} × {quoteForm.length} mm
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-300">
+                <div className="flex justify-between text-slate-600">
                   <span>Material Cost</span>
-                  <span className="text-indigo-300">
+                  <span className="text-indigo-600">
                     {formatCurrency(previewResult.materialCost)}
                   </span>
                 </div>
                 {(quoteForm.blockQty > 0 ||
                   quoteForm.colorQty > 0 ||
                   quoteForm.designQty > 0) && (
-                  <div className="flex justify-between text-slate-400">
+                  <div className="flex justify-between text-slate-500">
                     <span>One-Time Charges</span>
                     <span>
                       {formatCurrency(
@@ -722,13 +722,13 @@ function CustomerCard({
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-200 font-semibold border-t border-slate-700/50 pt-1">
+                <div className="flex justify-between text-slate-800 font-semibold border-t border-slate-200 pt-1">
                   <span>Total</span>
-                  <span className="text-emerald-300">
+                  <span className="text-emerald-600">
                     {formatCurrency(previewResult.totalCost)}
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between text-slate-500">
                   <span>Unit Price</span>
                   <span>{formatCurrency(previewResult.unitPrice)} / label</span>
                 </div>
@@ -740,7 +740,7 @@ function CustomerCard({
               onChange={(e) =>
                 onQuoteFormChange({ ...quoteForm, notes: e.target.value })
               }
-              className="w-full bg-slate-800/80 border border-slate-700/50 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              className="w-full bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
             />
             <div className="flex gap-2">
               <button
@@ -752,7 +752,7 @@ function CustomerCard({
               <button
                 type="button"
                 onClick={onCancelQuote}
-                className="py-2 px-3 sm:px-4 bg-slate-800 rounded-xl text-[10px] sm:text-xs text-slate-300"
+                className="py-2 px-3 sm:px-4 bg-white border border-slate-200 rounded-xl text-[10px] sm:text-xs text-slate-600 shadow-sm"
               >
                 Cancel
               </button>
@@ -772,11 +772,11 @@ function CustomerCard({
           return (
             <div
               key={quote.id}
-              className="bg-slate-800/30 rounded-xl sm:rounded-2xl border border-slate-700/30 p-3 sm:p-4 space-y-2"
+              className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-4 space-y-2 shadow-sm"
             >
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm text-slate-200 font-medium truncate">
+                  <p className="text-xs sm:text-sm text-slate-800 font-medium truncate">
                     {lt?.name ?? quote.labelTypeId}{" "}
                     <span className="text-slate-500">·</span> {quote.color}
                     {v && (
@@ -793,13 +793,13 @@ function CustomerCard({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onEditQuote(quote)}
-                    className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded-lg bg-slate-800/50 hover:bg-slate-800 shrink-0"
+                    className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-500 hover:text-indigo-600 transition-colors px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 shrink-0"
                   >
                     <Pencil className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   </button>
                   <button
                     onClick={() => onViewQuote(quote)}
-                    className="flex items-center gap-1 text-[10px] sm:text-xs text-indigo-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded-lg bg-slate-800/50 hover:bg-slate-800 shrink-0"
+                    className="flex items-center gap-1 text-[10px] sm:text-xs text-indigo-600 hover:text-indigo-700 transition-colors px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 shrink-0"
                   >
                     <Download className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> PDF
                   </button>
@@ -807,51 +807,51 @@ function CustomerCard({
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] sm:text-xs">
-                <div className="bg-slate-900/60 rounded-lg p-2">
+                <div className="bg-slate-50 rounded-lg p-2">
                   <p className="text-slate-500">Material</p>
-                  <p className="text-indigo-300 font-medium">
+                  <p className="text-indigo-600 font-medium">
                     {formatCurrency(r.materialCost)}
                   </p>
                 </div>
                 {r.blockCharges > 0 && (
-                  <div className="bg-slate-900/60 rounded-lg p-2">
+                  <div className="bg-slate-50 rounded-lg p-2">
                     <p className="text-slate-500">Block</p>
-                    <p className="text-amber-300 font-medium">
+                    <p className="text-amber-600 font-medium">
                       {formatCurrency(r.blockCharges)}
                     </p>
                   </div>
                 )}
                 {r.colorCharges > 0 && (
-                  <div className="bg-slate-900/60 rounded-lg p-2">
+                  <div className="bg-slate-50 rounded-lg p-2">
                     <p className="text-slate-500">Color</p>
-                    <p className="text-amber-300 font-medium">
+                    <p className="text-amber-600 font-medium">
                       {formatCurrency(r.colorCharges)}
                     </p>
                   </div>
                 )}
                 {r.designCharges > 0 && (
-                  <div className="bg-slate-900/60 rounded-lg p-2">
+                  <div className="bg-slate-50 rounded-lg p-2">
                     <p className="text-slate-500">Design</p>
-                    <p className="text-amber-300 font-medium">
+                    <p className="text-amber-600 font-medium">
                       {formatCurrency(r.designCharges)}
                     </p>
                   </div>
                 )}
-                <div className="bg-slate-900/60 rounded-lg p-2">
+                <div className="bg-slate-50 rounded-lg p-2">
                   <p className="text-slate-500">Total</p>
-                  <p className="text-emerald-300 font-medium">
+                  <p className="text-emerald-600 font-medium">
                     {formatCurrency(r.totalCost)}
                   </p>
                 </div>
-                <div className="bg-slate-900/60 rounded-lg p-2">
+                <div className="bg-slate-50 rounded-lg p-2">
                   <p className="text-slate-500">Unit Price</p>
-                  <p className="text-slate-200 font-medium">
+                  <p className="text-slate-800 font-medium">
                     {formatCurrency(r.unitPrice)}
                   </p>
                 </div>
-                <div className="bg-slate-900/60 rounded-lg p-2">
+                <div className="bg-slate-50 rounded-lg p-2">
                   <p className="text-slate-500">Roll Price</p>
-                  <p className="text-slate-200 font-medium">
+                  <p className="text-slate-800 font-medium">
                     {formatCurrency(r.rollPricePer200m)}
                   </p>
                 </div>
@@ -866,7 +866,7 @@ function CustomerCard({
               <div className="flex justify-end">
                 <button
                   onClick={() => onDeleteQuote(customer.id, quote.id)}
-                  className="text-slate-600 hover:text-rose-400 transition-colors p-1"
+                  className="text-slate-600 hover:text-rose-500 transition-colors p-1"
                 >
                   <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
@@ -877,7 +877,7 @@ function CustomerCard({
       </div>
 
       {customer.notes && (
-        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-800/50">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200">
           <p className="text-[10px] sm:text-xs text-slate-500 flex items-start gap-1">
             <FileText className="w-2.5 h-2.5 sm:w-3 sm:h-3 mt-0.5 shrink-0" />{" "}
             {customer.notes}

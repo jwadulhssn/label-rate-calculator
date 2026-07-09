@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, type ReactNode } from "react";
-import { Calculator, Users, Tags, Menu, X } from "lucide-react";
+import { Calculator, Users, Tags } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Calculator", icon: Calculator },
@@ -18,10 +18,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           <Tags className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             LabelPro
           </h1>
-          <p className="text-xs text-slate-500">Rate Calculator</p>
+          <p className="text-xs text-slate-400">Rate Calculator</p>
         </div>
       </div>
 
@@ -33,8 +33,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             onClick={() => setMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
               location.pathname === to
-                ? "bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 shadow-sm"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent"
+                ? "bg-indigo-50 text-indigo-600 border border-indigo-200 shadow-sm"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
             }`}
           >
             <Icon className="w-4 h-4 shrink-0" />
@@ -43,34 +43,35 @@ export default function Layout({ children }: { children: ReactNode }) {
         ))}
       </nav>
 
-      <div className="pt-6 border-t border-slate-800/50">
-        <p className="text-xs text-slate-600 text-center">LabelPro v1.0</p>
+      <div className="pt-6 border-t border-slate-200">
+        <p className="text-xs text-slate-300 text-center">LabelPro v1.0</p>
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 text-slate-900">
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/50">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-white/90 backdrop-blur-xl border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <Tags className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold bg-gradient-to-r from-indigo-200 to-purple-200 bg-clip-text text-transparent">
-            LabelPro
-          </span>
+          <p className="font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Galaxy
+          </p>
+          <p className="-ml-2 font-bold text-indigo-600">Labels</p>
         </div>
-        <button
+        {/* <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/50 text-slate-300"
+          className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 shadow-sm"
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        </button> */}
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/50 p-6 flex-col z-50">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-white/90 backdrop-blur-xl border-r border-slate-200 p-6 flex-col z-50">
         {sidebar}
       </aside>
 
@@ -78,10 +79,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       {menuOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
             onClick={() => setMenuOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800/50 p-6 flex flex-col shadow-2xl">
+          <aside className="absolute left-0 top-0 h-full w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200 p-6 flex flex-col shadow-2xl">
             {sidebar}
           </aside>
         </div>
