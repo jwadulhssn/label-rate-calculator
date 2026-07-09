@@ -1,4 +1,19 @@
-import type { LabelType, LabelParams, CalculationResult } from "./types";
+import type { LabelType, LabelParams, CalculationResult, RateOverride } from "./types";
+
+export function getVariantWithOverrides(
+  labelTypeId: string,
+  color: string,
+  overrides: Record<string, RateOverride>,
+) {
+  const variant = labelTypes
+    .find((l) => l.id === labelTypeId)
+    ?.variants.find((v) => v.color === color);
+  if (!variant) return undefined;
+  const key = `${labelTypeId}::${color}`;
+  const o = overrides[key];
+  if (!o) return variant;
+  return { ...variant, ...o };
+}
 
 export const labelTypes: LabelType[] = [
   {
@@ -58,10 +73,11 @@ export const labelTypes: LabelType[] = [
   },
 ];
 
-export function calculatePrice(params: LabelParams): CalculationResult {
-  const variant = labelTypes
-    .find((l) => l.id === params.labelTypeId)
-    ?.variants.find((v) => v.color === params.color);
+export function calculatePrice(
+  params: LabelParams,
+  overrides: Record<string, RateOverride> = {},
+): CalculationResult {
+  const variant = getVariantWithOverrides(params.labelTypeId, params.color, overrides);
 
   if (!variant) {
     return {

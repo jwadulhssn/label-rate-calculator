@@ -2,21 +2,35 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { domToCanvas } from "modern-screenshot";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { labelTypes, calculatePrice, formatCurrency } from "../data";
+import {
+  labelTypes,
+  calculatePrice,
+  formatCurrency,
+  getVariantWithOverrides,
+} from "../data";
+import { useApp } from "../context";
 import type { LabelColor, LabelParams } from "../types";
-import StatCard from "../components/StatCard";
 import {
   Ruler,
-  Hash,
-  Share2,
-  ShoppingBag,
-  Palette,
-  ChevronDown,
   Layers,
-  PenLine,
+  Palette,
+  Stamp,
+  PencilRuler,
+  Calculator as CalculatorIcon,
+  ShoppingCart,
+  Tag,
+  ScrollText,
+  Share2,
+  Info,
+  RotateCcw,
+  Minus,
+  Plus,
+  ChevronDown,
 } from "lucide-react";
 
 export default function Calculator() {
+  const { rateOverrides } = useApp();
+
   const initialParams: LabelParams = {
     labelTypeId: labelTypes[0].id,
     color: labelTypes[0].variants[0].color,
@@ -31,30 +45,51 @@ export default function Calculator() {
     designRate: labelTypes[0].variants[0].defaultDesignRate,
   };
 
-  const [params, setParams] = useState<LabelParams>(() => ({
-    ...initialParams,
-  }));
+  const [params, setParams] = useState<LabelParams>(() => {
+    const eff = getVariantWithOverrides(
+      initialParams.labelTypeId,
+      initialParams.color,
+      rateOverrides,
+    );
+    if (eff) {
+      return {
+        ...initialParams,
+        blockRate: eff.defaultBlockRate,
+        colorRate: eff.defaultColorRate,
+        designRate: eff.defaultDesignRate,
+      };
+    }
+    return { ...initialParams };
+  });
 
   const [screenshotMode, setScreenshotMode] = useState(false);
 
   const variants =
     labelTypes.find((l) => l.id === params.labelTypeId)?.variants ?? [];
-  const variant = variants.find((v) => v.color === params.color);
 
   useEffect(() => {
-    if (variant) {
+    const eff = getVariantWithOverrides(
+      params.labelTypeId,
+      params.color,
+      rateOverrides,
+    );
+    if (eff) {
       setParams((prev) => ({
         ...prev,
-        blockRate: variant.defaultBlockRate,
-        colorRate: variant.defaultColorRate,
-        designRate: variant.defaultDesignRate,
+        blockRate: eff.defaultBlockRate,
+        colorRate: eff.defaultColorRate,
+        designRate: eff.defaultDesignRate,
       }));
     }
-  }, [params.labelTypeId, params.color]);
+  }, [params.labelTypeId, params.color, rateOverrides]);
 
-  const result = useMemo(() => calculatePrice(params), [params]);
+  const result = useMemo(
+    () => calculatePrice(params, rateOverrides),
+    [params, rateOverrides],
+  );
 
   const ref = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleScreenshot = async () => {
     const el = ref.current;
@@ -66,7 +101,6 @@ export default function Calculator() {
           scale: 2,
           backgroundColor: "#ffffff",
           style: {
-            // zoom: "0.9",
             margin: "0",
             boxSizing: "border-box",
           },
@@ -94,8 +128,8 @@ export default function Calculator() {
             directory: Directory.Cache,
           });
           await Share.share({
-            title: "Galaxy Labels",
-            text: "Galaxy Labels Rates",
+            title: "Galaxy Labels Quotation",
+            text: `${params.labelTypeId} in ${params.color} ${params.qty} pieces`,
             url: saved.uri,
           });
         } catch {
@@ -119,65 +153,140 @@ export default function Calculator() {
     setParams((prev) => ({ ...prev, [key]: value }));
   };
 
+  const increment = (key: "colorQty" | "blockQty" | "designQty") => {
+    setParams((prev) => ({ ...prev, [key]: (prev[key] as number) + 1 }));
+  };
+
+  const decrement = (key: "colorQty" | "blockQty" | "designQty") => {
+    setParams((prev) => ({
+      ...prev,
+      [key]: Math.max(0, (prev[key] as number) - 1),
+    }));
+  };
+
+  const resetAll = () => setParams({ ...initialParams });
+
+  const scrollToResults = () => {
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const colorSwatchClass =
+    params.color === "White"
+      ? "bg-white border-slate-300"
+      : params.color === "Black"
+        ? "bg-slate-900 border-slate-600"
+        : "bg-slate-400 border-slate-400";
+
   return (
-    <div ref={ref} className={`space-y-2 py-4 max-w-screen mx-auto`}>
-      {/* <div
-        data-screenshot-hide="true"
-        className="flex items-center justify-between"
-      >
-        <div>
-          <h2 className="text-lg sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Calculator
-          </h2>
-          <p className="text-slate-500 mt-0 sm:mt-1 text-[10px] sm:text-sm">
-            Label pricing calculator
-          </p>
+    <div ref={ref} className="min-h-screen py-4 space-y-1.5">
+      {/* ===== WIDTH & LENGTH ===== */}
+      <div className="grid grid-cols-2 gap-2">
+        {/* Width */}
+        <div className="bg-blue-50 rounded-lg shadow-xs p-1.5">
+          <div className="flex items-center gap-1 mb-0.5">
+            <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+              <Ruler className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#1E40AF]">
+              Width (mm)
+            </span>
+          </div>
+          {screenshotMode ? (
+            <span className="block text-center text-[34px] font-bold text-[#1E40AF] tabular-nums leading-none">
+              {params.width}
+            </span>
+          ) : (
+            <input
+              data-screenshot-hide="true"
+              type="number"
+              min="0"
+              value={params.width || ""}
+              onChange={(e) =>
+                update(
+                  "width",
+                  e.target.value === "" ? 0 : Number(e.target.value),
+                )
+              }
+              className="w-full text-center text-[34px] font-bold bg-transparent border-0 outline-none focus:ring-0 p-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="0"
+            />
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setParams({ ...initialParams })}
-            className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-0.5 bg-white border border-slate-200 rounded-lg sm:rounded-xl text-[10px] sm:text-sm text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs"
-          >
-            Reset
-          </button>
-          <button
-            onClick={handleScreenshot}
-            className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-0.5 bg-indigo-500 border border-indigo-500 rounded-lg sm:rounded-xl text-[10px] sm:text-sm text-white hover:bg-indigo-600 transition-all shadow-xs"
-          >
-            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            Share
-          </button>
+
+        {/* Length */}
+        <div className="bg-green-50 rounded-lg shadow-xs p-1.5">
+          <div className="flex items-center gap-1 mb-0.5">
+            <div className="w-7 h-7 rounded-full bg-green-600 flex items-center justify-center shrink-0">
+              <Ruler className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#15803D]">
+              Length (mm)
+            </span>
+          </div>
+          {screenshotMode ? (
+            <span className="block text-center text-[34px] font-bold text-[#15803D] tabular-nums leading-none">
+              {params.length}
+            </span>
+          ) : (
+            <input
+              data-screenshot-hide="true"
+              type="number"
+              min="1"
+              value={params.length || ""}
+              onChange={(e) =>
+                update(
+                  "length",
+                  e.target.value === "" ? 0 : Number(e.target.value),
+                )
+              }
+              className="w-full text-center text-[34px] font-bold bg-transparent border-0 outline-none focus:ring-0 p-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="0"
+            />
+          )}
         </div>
-      </div> */}
+      </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 items-start">
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Category
-          </p>
-
-          <span
-            className={`${screenshotMode ? "" : "hidden"} text-base font-bold text-indigo-600 font-mono`}
-          >
-            {labelTypes.find((l) => l.id === params.labelTypeId)?.name}
-          </span>
-
-          {!screenshotMode && (
-            <div className="relative">
+      <div className="grid grid-cols-2 gap-2">
+        {/* ===== CATEGORY ===== */}
+        <div className="bg-purple-50 rounded-lg shadow-xs p-1.5">
+          <div className="flex items-center gap-1 mb-1">
+            <div className="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center shrink-0">
+              <Layers className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5B21B6]">
+              Category
+            </span>
+          </div>
+          {screenshotMode ? (
+            <span className="block text-lg font-bold text-[#5B21B6]">
+              {labelTypes.find((l) => l.id === params.labelTypeId)?.name}
+            </span>
+          ) : (
+            <div className="relative" data-screenshot-hide="true">
               <select
                 value={params.labelTypeId}
                 onChange={(e) => {
                   const lt = labelTypes.find((l) => l.id === e.target.value)!;
+                  const firstColor = lt.variants[0].color;
+                  const eff = getVariantWithOverrides(
+                    e.target.value,
+                    firstColor,
+                    rateOverrides,
+                  );
                   setParams({
                     ...params,
                     labelTypeId: e.target.value,
-                    color: lt.variants[0].color,
-                    blockRate: lt.variants[0].defaultBlockRate,
-                    colorRate: lt.variants[0].defaultColorRate,
-                    designRate: lt.variants[0].defaultDesignRate,
+                    color: firstColor,
+                    blockRate:
+                      eff?.defaultBlockRate ?? lt.variants[0].defaultBlockRate,
+                    colorRate:
+                      eff?.defaultColorRate ?? lt.variants[0].defaultColorRate,
+                    designRate:
+                      eff?.defaultDesignRate ??
+                      lt.variants[0].defaultDesignRate,
                   });
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-300 transition-all appearance-none cursor-pointer pr-7"
+                className="w-full bg-white/70 border border-purple-200 rounded-md px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-300 transition-all appearance-none cursor-pointer"
               >
                 {labelTypes.map((lt) => (
                   <option key={lt.id} value={lt.id}>
@@ -185,46 +294,49 @@ export default function Calculator() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />
             </div>
           )}
         </div>
 
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <Palette className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Color
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-xl sm:text-2xl font-bold text-indigo-600 font-mono`}
-            >
-              {variants.find((v) => v.color === params.color)?.color}
+        {/* ===== COLOR ===== */}
+        <div className="bg-purple-50 rounded-lg shadow-xs p-1.5">
+          <div className="flex items-center gap-1 mb-1">
+            <div className="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center shrink-0">
+              <Palette className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5B21B6]">
+              Color
             </span>
-            {!screenshotMode && (
+          </div>
+          <div className="flex flex-col gap-1">
+            {screenshotMode ? (
+              <p className="text-center text-lg font-bold text-[#5B21B6]">
+                {variants.find((v) => v.color === params.color)?.color}
+              </p>
+            ) : (
               <div className="relative" data-screenshot-hide="true">
                 <span
-                  className={`absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border shrink-0 z-10 pointer-events-none ${
-                    params.color === "White"
-                      ? "bg-white border-slate-300"
-                      : params.color === "Black"
-                        ? "bg-slate-900 border-slate-600"
-                        : "bg-slate-400 border-slate-400"
-                  }`}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 shrink-0 z-10 pointer-events-none ${colorSwatchClass}`}
                 />
                 <select
                   value={params.color}
                   onChange={(e) => {
                     const c = e.target.value as LabelColor;
-                    const v = variants.find((vx) => vx.color === c);
+                    const eff = getVariantWithOverrides(
+                      params.labelTypeId,
+                      c,
+                      rateOverrides,
+                    );
                     setParams({
                       ...params,
                       color: c,
-                      blockRate: v?.defaultBlockRate ?? params.blockRate,
-                      colorRate: v?.defaultColorRate ?? params.colorRate,
-                      designRate: v?.defaultDesignRate ?? params.designRate,
+                      blockRate: eff?.defaultBlockRate ?? params.blockRate,
+                      colorRate: eff?.defaultColorRate ?? params.colorRate,
+                      designRate: eff?.defaultDesignRate ?? params.designRate,
                     });
                   }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-7 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-300 transition-all appearance-none cursor-pointer"
+                  className="w-full bg-white/70 border border-purple-200 rounded-md pl-9 pr-9 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-300 transition-all appearance-none cursor-pointer"
                 >
                   {variants.map((v) => (
                     <option key={v.color} value={v.color}>
@@ -232,229 +344,243 @@ export default function Calculator() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <Ruler className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Width (mm)
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-indigo-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(99,102,241,0.15)]`}
-            >
-              {params.width}
+      {/* ===== COLORS / BLOCKS / DESIGNS ===== */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {/* Colors */}
+        <div className="bg-pink-50 rounded-lg shadow-xs p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <div className="w-6 h-6 rounded-full bg-pink-600 flex items-center justify-center shrink-0">
+              <Palette className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#BE185D]">
+              Colors
             </span>
-            {!screenshotMode && (
-              <input
-                data-screenshot-hide="true"
-                type="number"
-                min="0"
-                value={params.width || ""}
-                onChange={(e) =>
-                  update(
-                    "width",
-                    e.target.value === "" ? 0 : Number(e.target.value),
-                  )
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-all font-mono tabular-nums"
-              />
-            )}
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <Ruler className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Length (mm)
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-emerald-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(52,211,153,0.15)]`}
-            >
-              {params.length}
-            </span>
-            {!screenshotMode && (
-              <input
-                data-screenshot-hide="true"
-                type="number"
-                min="1"
-                value={params.length || ""}
-                onChange={(e) =>
-                  update(
-                    "length",
-                    e.target.value === "" ? 0 : Number(e.target.value),
-                  )
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-300 transition-all font-mono tabular-nums"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-        <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-          <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Label Qty
-        </p>
-        <div className="flex flex-col gap-2">
-          <span
-            className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-amber-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(251,191,36,0.15)]`}
-          >
-            {params.qty.toLocaleString()}
-          </span>
-          {!screenshotMode && (
-            <input
+          {screenshotMode ? (
+            <p className="text-center text-lg font-bold text-[#BE185D] tabular-nums">
+              {params.colorQty}
+            </p>
+          ) : (
+            <div
+              className="flex items-center justify-center bg-white rounded-sm border border-gray-100 py-1 px-1 gap-1"
               data-screenshot-hide="true"
-              type="number"
-              min="1"
-              value={params.qty || ""}
-              onChange={(e) =>
-                update(
-                  "qty",
-                  e.target.value === "" ? 0 : Number(e.target.value),
-                )
-              }
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-300 transition-all font-mono tabular-nums"
-            />
+            >
+              <button
+                onClick={() => decrement("colorQty")}
+                className="w-6 h-6 rounded-full border-2 border-pink-300 flex items-center justify-center text-[#BE185D] hover:bg-pink-100 transition-colors shrink-0"
+              >
+                <Minus className="w-2.5 h-2.5" />
+              </button>
+              <span className="text-sm font-bold text-[#BE185D] w-6 text-center tabular-nums">
+                {params.colorQty}
+              </span>
+              <button
+                onClick={() => increment("colorQty")}
+                className="w-6 h-6 rounded-full border-2 border-pink-300 flex items-center justify-center text-[#BE185D] hover:bg-pink-100 transition-colors shrink-0"
+              >
+                <Plus className="w-2.5 h-2.5" />
+              </button>
+            </div>
           )}
         </div>
-      </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <Palette className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Colors
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-blue-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(96,165,250,0.15)]`}
-            >
-              {params.colorQty}
+        {/* Blocks */}
+        <div className="bg-blue-50 rounded-lg shadow-xs p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+              <Stamp className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#1E40AF]">
+              Blocks
             </span>
-            {!screenshotMode && (
-              <input
-                data-screenshot-hide="true"
-                type="number"
-                min="0"
-                value={params.colorQty || ""}
-                onChange={(e) =>
-                  update(
-                    "colorQty",
-                    e.target.value === "" ? 0 : Number(e.target.value),
-                  )
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-300 transition-all font-mono tabular-nums"
-              />
-            )}
           </div>
-        </div>
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Blocks
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-purple-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(168,85,247,0.15)]`}
-            >
+          {screenshotMode ? (
+            <span className="block text-center text-lg font-bold text-[#1E40AF] tabular-nums">
               {params.blockQty}
             </span>
-            {!screenshotMode && (
-              <input
-                data-screenshot-hide="true"
-                type="number"
-                min="0"
-                value={params.blockQty || ""}
-                onChange={(e) =>
-                  update(
-                    "blockQty",
-                    e.target.value === "" ? 0 : Number(e.target.value),
-                  )
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-300 transition-all font-mono tabular-nums"
-              />
-            )}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs border border-slate-200">
-          <p className="text-[9px] sm:text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-            <PenLine className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Designs
-          </p>
-          <div className="flex flex-col gap-2">
-            <span
-              className={`${screenshotMode ? "" : "hidden"} text-3xl sm:text-4xl font-bold text-pink-600 font-mono tabular-nums drop-shadow-[0_0_12px_rgba(244,114,182,0.15)]`}
+          ) : (
+            <div
+              className="flex items-center justify-center bg-white rounded-sm border border-gray-100 py-1 px-1 gap-1"
+              data-screenshot-hide="true"
             >
+              <button
+                onClick={() => decrement("blockQty")}
+                className="w-6 h-6 rounded-full border-2 border-blue-300 flex items-center justify-center text-[#1E40AF] hover:bg-blue-100 transition-colors shrink-0"
+              >
+                <Minus className="w-2.5 h-2.5" />
+              </button>
+              <span className="text-sm font-bold text-[#1E40AF] w-6 text-center tabular-nums">
+                {params.blockQty}
+              </span>
+              <button
+                onClick={() => increment("blockQty")}
+                className="w-6 h-6 rounded-full border-2 border-blue-300 flex items-center justify-center text-[#1E40AF] hover:bg-blue-100 transition-colors shrink-0"
+              >
+                <Plus className="w-2.5 h-2.5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Designs */}
+        <div className="bg-teal-50 rounded-lg shadow-xs p-2">
+          <div className="flex items-center gap-1 mb-1">
+            <div className="w-6 h-6 rounded-full bg-teal-600 flex items-center justify-center shrink-0">
+              <PencilRuler className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[8px] font10semibold uppercase tracking-wider text-[#0F766E]">
+              Designs
+            </span>
+          </div>
+          {screenshotMode ? (
+            <span className="block text-center text-lg font-bold text-[#0F766E] tabular-nums">
               {params.designQty}
             </span>
-            {!screenshotMode && (
-              <input
-                data-screenshot-hide="true"
-                type="number"
-                min="0"
-                value={params.designQty || ""}
-                onChange={(e) =>
-                  update(
-                    "designQty",
-                    e.target.value === "" ? 0 : Number(e.target.value),
-                  )
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-0.5 text-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500/30 focus:border-pink-300 transition-all font-mono tabular-nums"
-              />
-            )}
+          ) : (
+            <div
+              className="flex items-center justify-center bg-white rounded-sm border border-gray-100 py-1 px-1 gap-1"
+              data-screenshot-hide="true"
+            >
+              <button
+                onClick={() => decrement("designQty")}
+                className="w-6 h-6 rounded-full border-2 border-teal-300 flex items-center justify-center text-[#0F766E] hover:bg-teal-100 transition-colors shrink-0"
+              >
+                <Minus className="w-2.5 h-2.5" />
+              </button>
+              <span className="text-sm font-bold text-[#0F766E] w-6 text-center tabular-nums">
+                {params.designQty}
+              </span>
+              <button
+                onClick={() => increment("designQty")}
+                className="w-6 h-6 rounded-full border-2 border-teal-300 flex items-center justify-center text-[#0F766E] hover:bg-teal-100 transition-colors shrink-0"
+              >
+                <Plus className="w-2.5 h-2.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ===== QUANTITY ===== */}
+      <div className="bg-orange-50 rounded-lg shadow-xs p-1.5">
+        <div className="flex items-center justify-center gap-1 mb-0.5">
+          <div className="w-7 h-7 rounded-full bg-orange-600 flex items-center justify-center shrink-0">
+            <Tag className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-[10px] whitespace-nowrap font-semibold uppercase tracking-wider text-[#C2410C]">
+            Total Quantity Of Pieces
+          </span>
+        </div>
+        {screenshotMode ? (
+          <span className="block text-center text-[34px] font-bold text-[#C2410C] tabular-nums leading-none">
+            {params.qty.toLocaleString()}
+          </span>
+        ) : (
+          <input
+            data-screenshot-hide="true"
+            type="number"
+            min="1"
+            value={params.qty || ""}
+            onChange={(e) =>
+              update("qty", e.target.value === "" ? 0 : Number(e.target.value))
+            }
+            className="w-full text-center text-[28px] font-bold mt-1.5 bg-white rounded-md outline-none focus:ring-0 p-0 leading-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="0"
+          />
+        )}
+      </div>
+
+      {/* ===== CALCULATE BUTTON ===== */}
+      <button
+        data-screenshot-hide
+        onClick={scrollToResults}
+        className="w-full bg-gradient-to-r from-[#7C3AED] to-[#5B21B6] text-white rounded-sm py-1 font-bold text-base uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs hover:shadow-xl transition-all cursor-pointer"
+      >
+        <CalculatorIcon className="w-6 h-6" />
+        Calculate
+      </button>
+
+      {/* ===== RESULTS ===== */}
+      <div ref={resultsRef} className="space-y-1.5 scroll-mt-20">
+        {/* Total Order Price */}
+        <div className="flex items-center bg-gray-50 rounded-lg shadow-xs p-2.5">
+          <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-2.5 shrink-0">
+            <ShoppingCart className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 -ml-10">
+            <p className="text-[10px] text-center font-semibold uppercase tracking-wider text-[#15803D]">
+              Total Order Price
+            </p>
+            <p className="mt-1 text-2xl text-center font-bold text-[#15803D] tabular-nums leading-none">
+              {formatCurrency(result.totalCost)}
+            </p>
+          </div>
+        </div>
+
+        {/* Each Label Price */}
+        <div className="flex items-center bg-blue-50 rounded-lg shadow-xs p-2.5">
+          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-2.5 shrink-0">
+            <Tag className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 -ml-10">
+            <p className="text-[10px] text-center font-semibold uppercase tracking-wider text-[#1E40AF]">
+              Each Label Price
+            </p>
+            <p className="mt-1 text-2xl text-center font-bold text-[#1E40AF] tabular-nums leading-none">
+              {formatCurrency(result.unitPrice)}
+            </p>
+          </div>
+        </div>
+
+        {/* Price Per Roll */}
+        <div className="flex items-center bg-orange-50 border border-[#C2410C] rounded-lg shadow-xs p-2.5">
+          <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center mr-2.5 shrink-0">
+            <ScrollText className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 -ml-10">
+            <p className="text-[10px] text-center font-semibold uppercase tracking-wider text-[#C2410C]">
+              Price Per Roll (200m)
+            </p>
+            <p className="mt-1 text-2xl text-center font-bold text-[#C2410C] tabular-nums leading-none">
+              {formatCurrency(result.rollPricePer200m)}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 mt-4">
-        {/* <StatCard
-          label="Material"
-          value={formatCurrency(result.materialCost)}
-          sub={`${result.totalSizeMM.toLocaleString()}mm² × ${formatRate(variant?.labelRate ?? 0)} × ${params.qty.toLocaleString()}`}
-          accent="indigo"
-        />
-        <StatCard
-          label="Charges"
-          value={formatCurrency(
-            result.blockCharges + result.colorCharges + result.designCharges,
-          )}
-          sub={`Block: ${formatCurrency(result.blockCharges)} · Color: ${formatCurrency(result.colorCharges)} · Design: ${formatCurrency(result.designCharges)}`}
-          accent="amber"
-        /> */}
-        <StatCard
-          label="Total"
-          value={formatCurrency(result.totalCost)}
-          sub={`${formatCurrency(result.materialCost)} + ${formatCurrency(result.blockCharges + result.colorCharges + result.designCharges)}`}
-          accent="indigo"
-        />
-        <StatCard
-          label="Unit Price"
-          value={formatCurrency(result.unitPrice)}
-          sub={`${formatCurrency(result.totalCost)} ÷ ${params.qty.toLocaleString()} labels`}
-          accent="emerald"
-        />
-      </div>
-
+      {/* ===== SHARE BUTTON ===== */}
       {!screenshotMode && (
-        <div className="grid grid-cols-2 items-center gap-2 mt-4">
-          <button
-            onClick={() => setParams({ ...initialParams })}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-0.5 bg-white border border-slate-200 rounded-lg sm:rounded-xl text-[10px] sm:text-sm text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs"
-          >
-            Reset
-          </button>
-          <button
-            onClick={handleScreenshot}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 sm:px-4 sm:py-0.5 bg-indigo-500 border border-indigo-500 rounded-lg sm:rounded-xl text-[10px] sm:text-sm text-white hover:bg-indigo-600 transition-all shadow-xs"
-          >
-            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            Share
-          </button>
-        </div>
+        <button
+          onClick={handleScreenshot}
+          className="w-full bg-purple-50 border border-gray-100 text-[#6D28D9] rounded-md py-2 font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs hover:shadow-xl transition-all cursor-pointer"
+        >
+          <Share2 className="w-4 h-4" />
+          Share
+        </button>
       )}
+
+      {/* ===== FOOTER ===== */}
+      <div className="flex items-center bg-orange-50 p-1 px-2 rounded-md justify-between">
+        <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 whitespace-nowrap">
+          <Info className="w-5 h-5 text-orange-400" />
+          <span>All calculations are automatic.</span>
+        </div>
+        <button
+          data-screenshot-hide
+          onClick={resetAll}
+          className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+        >
+          <RotateCcw className="w-2.5 h-2.5" />
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

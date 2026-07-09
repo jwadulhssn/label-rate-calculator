@@ -18,6 +18,7 @@ import type {
   Customer,
   CustomerQuote,
   LabelColor,
+  RateOverride,
   LabelParams,
 } from "../types";
 import QuoteModal from "../components/QuoteModal";
@@ -31,6 +32,7 @@ export default function Customers() {
     addQuote,
     updateQuote,
     deleteQuote,
+    rateOverrides,
   } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
@@ -144,7 +146,7 @@ export default function Customers() {
       designQty: quoteForm.designQty,
       designRate: quoteForm.designRate,
     };
-    const result = calculatePrice(params);
+    const result = calculatePrice(params, rateOverrides);
     if (editingQuoteId) {
       updateQuote(showQuoteForm, editingQuoteId, {
         labelTypeId: quoteForm.labelTypeId,
@@ -344,6 +346,7 @@ export default function Customers() {
             <CustomerCard
               key={customer.id}
               customer={customer}
+              rateOverrides={rateOverrides}
               onEdit={handleEdit}
               onDelete={deleteCustomer}
               onAddQuote={() => {
@@ -395,6 +398,7 @@ export default function Customers() {
 
 function CustomerCard({
   customer,
+  rateOverrides,
   onEdit,
   onDelete,
   onAddQuote,
@@ -409,6 +413,7 @@ function CustomerCard({
   onViewQuote,
 }: {
   customer: Customer;
+  rateOverrides: Record<string, RateOverride>;
   onEdit: (c: Customer) => void;
   onDelete: (id: string) => void;
   onAddQuote: () => void;
@@ -441,19 +446,22 @@ function CustomerCard({
 
   const previewResult =
     showQuoteForm && variant
-      ? calculatePrice({
-          labelTypeId: quoteForm.labelTypeId,
-          color: quoteForm.color,
-          width: quoteForm.width,
-          length: quoteForm.length,
-          qty: quoteForm.qty,
-          blockQty: quoteForm.blockQty,
-          blockRate: quoteForm.blockRate,
-          colorQty: quoteForm.colorQty,
-          colorRate: quoteForm.colorRate,
-          designQty: quoteForm.designQty,
-          designRate: quoteForm.designRate,
-        })
+      ? calculatePrice(
+          {
+            labelTypeId: quoteForm.labelTypeId,
+            color: quoteForm.color,
+            width: quoteForm.width,
+            length: quoteForm.length,
+            qty: quoteForm.qty,
+            blockQty: quoteForm.blockQty,
+            blockRate: quoteForm.blockRate,
+            colorQty: quoteForm.colorQty,
+            colorRate: quoteForm.colorRate,
+            designQty: quoteForm.designQty,
+            designRate: quoteForm.designRate,
+          },
+          rateOverrides,
+        )
       : null;
 
   return (

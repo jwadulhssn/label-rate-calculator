@@ -1,5 +1,9 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import type { Customer, CustomerQuote } from "./types";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import type { Customer, CustomerQuote, RateOverride } from "./types";
+
+export function getOverrideKey(labelTypeId: string, color: string) {
+  return `${labelTypeId}::${color}`;
+}
 
 interface AppContextType {
   customers: Customer[];
@@ -9,7 +13,13 @@ interface AppContextType {
   addQuote: (customerId: string, quote: Omit<CustomerQuote, "id" | "createdAt">) => void;
   updateQuote: (customerId: string, quoteId: string, quote: Partial<CustomerQuote>) => void;
   deleteQuote: (customerId: string, quoteId: string) => void;
+  rateOverrides: Record<string, RateOverride>;
+  setRateOverride: (key: string, override: Partial<RateOverride>) => void;
+  resetRateOverride: (key: string) => void;
+  resetAllRateOverrides: () => void;
 }
+
+const OVERRIDES_KEY = "label-calculator-rate-overrides";
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -28,6 +38,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("label-calculator-customers", JSON.stringify(customers));
   }, [customers]);
+
+  const [rateOverrides, setRateOverrides] = useState<Record<string, RateOverride>>(() => {
+    try {
+      const saved = localStorage.getItem(OVERRIDES_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(rateOverrides));
+  }, [rateOverrides]);
+
+  const setRateOverride = useCallback((key: string, override: Partial<RateOverride>) => {
+    setRateOverrides((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], ...override } as RateOverride,
+    }));
+  }, []);
+
+  const resetRateOverride = useCallback((key: string) => {
+    setRateOverrides((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }, []);
+
+  const resetAllRateOverrides = useCallback(() => {
+    setRateOverrides({});
+  }, []);
 
   const addCustomer = (data: Omit<Customer, "id" | "createdAt" | "quotes">) => {
     setCustomers((prev) => [
@@ -84,7 +126,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{ customers, addCustomer, updateCustomer, deleteCustomer, addQuote, updateQuote, deleteQuote }}
+      value={{
+        customers,
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
+        addQuote,
+        updateQuote,
+        deleteQuote,
+        rateOverrides,
+        setRateOverride,
+        resetRateOverride,
+        resetAllRateOverrides,
+      }}
     >
       {children}
     </AppContext.Provider>

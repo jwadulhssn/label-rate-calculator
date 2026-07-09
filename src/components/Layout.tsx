@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, type ReactNode } from "react";
-import { Calculator, Users, Tags } from "lucide-react";
+import { Calculator, Users, Tags, Settings2, Menu, X } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Calculator", icon: Calculator },
+  { to: "/rates", label: "Rates", icon: Settings2 },
   { to: "/customers", label: "Customers", icon: Users },
 ];
 
@@ -62,12 +63,13 @@ export default function Layout({ children }: { children: ReactNode }) {
           </p>
           <p className="-ml-2 font-bold text-indigo-600">Labels</p>
         </div>
-        {/* <button
+        <button
+          data-screenshot-hide
           onClick={() => setMenuOpen(!menuOpen)}
           className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 shadow-sm"
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button> */}
+        </button>
       </div>
 
       {/* Desktop sidebar */}

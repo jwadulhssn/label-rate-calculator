@@ -53,6 +53,14 @@ export interface Customer {
   createdAt: string;
 }
 
+export interface RateOverride {
+  labelRate: number;
+  rollPrice: number;
+  defaultBlockRate: number;
+  defaultColorRate: number;
+  defaultDesignRate: number;
+}
+
 export interface CustomerQuote {
   id: string;
   labelTypeId: string;
