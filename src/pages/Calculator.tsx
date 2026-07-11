@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { domToCanvas } from "modern-screenshot";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
@@ -83,10 +83,14 @@ export default function Calculator() {
     }
   }, [params.labelTypeId, params.color, rateOverrides]);
 
-  const result = useMemo(
-    () => calculatePrice(params, rateOverrides),
-    [params, rateOverrides],
+  const [result, setResult] = useState(() =>
+    calculatePrice(params, rateOverrides),
   );
+
+  const doCalculate = () => {
+    setResult(calculatePrice(params, rateOverrides));
+    scrollToResults();
+  };
 
   const ref = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -500,7 +504,7 @@ export default function Calculator() {
       {/* ===== CALCULATE BUTTON ===== */}
       <button
         data-screenshot-hide
-        onClick={scrollToResults}
+        onClick={doCalculate}
         className="w-full bg-gradient-to-r from-[#7C3AED] to-[#5B21B6] text-white rounded-sm py-1 font-bold text-base uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs hover:shadow-xl transition-all cursor-pointer"
       >
         <CalculatorIcon className="w-6 h-6" />
