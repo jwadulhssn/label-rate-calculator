@@ -119,6 +119,7 @@ export function formatCurrency(value: number): string {
     currency: "PKR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
+    trailingZeroDisplay: "stripIfInteger"
   }).format(value);
 }
 

@@ -34,14 +34,14 @@ export default function Calculator() {
   const initialParams: LabelParams = {
     labelTypeId: labelTypes[0].id,
     color: labelTypes[0].variants[0].color,
-    width: 40,
-    length: 170,
-    qty: 5000,
-    blockQty: 1,
+    width: 0,
+    length: 0,
+    qty: 0,
+    blockQty: 0,
     blockRate: labelTypes[0].variants[0].defaultBlockRate,
-    colorQty: 1,
+    colorQty: 0,
     colorRate: labelTypes[0].variants[0].defaultColorRate,
-    designQty: 1,
+    designQty: 0,
     designRate: labelTypes[0].variants[0].defaultDesignRate,
   };
 
